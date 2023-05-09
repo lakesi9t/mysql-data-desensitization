@@ -2,13 +2,13 @@ package com.yqkj.data.constant;
 
 
 @SuppressWarnings("all")
-public class CollectionName {
+public class TableType {
     /**
-     * USER表
+     * USER类
      */
     public static final String USER = "USER";
     /**
-     * CUSTOM表
+     * CUSTOM类
      */
     public static final String CUSTOM = "CUSTOM";
 

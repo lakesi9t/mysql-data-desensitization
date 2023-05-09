@@ -6,6 +6,7 @@ import com.yqkj.data.bean.RequestBodyEntity;
 import com.yqkj.data.bean.User;
 import com.yqkj.data.service.CRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,9 @@ import java.util.List;
 
 @RestController
 public class RestTemplateController {
+    @Value("${common.desensitization.url}")
+    private String url;
+
     @Autowired
     private CRUDController crudController;
 
@@ -61,7 +65,7 @@ public class RestTemplateController {
 
     @PostMapping(value = "/testPostDesensitization")
     public Object testPost1() {
-        String url = "http://localhost:8080/user/test3";
+//        String url = "http://localhost:8080/user/test3";
 //        JSONObject postData = new JSONObject();
 //        Result allUser = crudController.getAllUser();
         List<User> allUser1 = crudService.getAllUser();

@@ -3,9 +3,9 @@ package com.yqkj.data.service;
 import com.github.pagehelper.PageHelper;
 import com.yqkj.data.bean.RequestBodyEntity;
 import com.yqkj.data.bean.User;
-import com.yqkj.data.config.StaticConfig;
 import com.yqkj.data.dao.CRUDDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,9 @@ import java.util.List;
 
 @Service
 public class CRUDService implements CRUDDao {
+    @Value("${common.user.pageSize}")
+    private Integer pageSize;
+
     @Resource
     private CRUDDao crudDao;
 
@@ -26,6 +29,11 @@ public class CRUDService implements CRUDDao {
     @Override
     public List<User> getAllUser() {
         return crudDao.getAllUser();
+    }
+
+    @Override
+    public List<User> getTableAllUser(String tableName) {
+        return crudDao.getTableAllUser(tableName);
     }
 
     @Override
@@ -49,31 +57,36 @@ public class CRUDService implements CRUDDao {
     }
 
     @Override
+    public int updateTableCustom(String tableName, Integer id, String username, String password) {
+        return crudDao.updateTableCustom(tableName, id, username, password);
+    }
+
+    @Override
     public int deleteUser(Integer id) {
         return crudDao.deleteUser(id);
     }
 
     //分页查询
-    public List<User> findPage(Integer pageNo, Integer pageSize) {
+    public List<User> findPage(Integer pageNo, Integer pageSize, String tableName) {
 
         PageHelper.startPage(pageNo,pageSize);
 
-        return crudDao.getAllUser();//这里的list方法是查询全部数据的方法
+        return crudDao.getTableAllUser(tableName);//这里的list方法是查询全部数据的方法
 
     }
 
 
-    public void handle(String url) {
+    public void handle(String url, String tableName) {
 //        String url = "http://localhost:8080/user/test3";
 //        JSONObject postData = new JSONObject();
 //        Result allUser = crudControllergetAllUser();
 
 //        Integer count = countAllUser();
 
-        int countPage = countAllUser() / StaticConfig.pageSize + 1;
+        int countPage = countAllUser() / pageSize + (countAllUser() % pageSize == 0 ? 0 : 1);
 
         for (int i = 1; i <= countPage; i++) {
-            List<User> page = findPage(i, StaticConfig.pageSize);
+            List<User> page = findPage(i, pageSize, tableName);
             page.forEach(
                     e -> {
                         RequestBodyEntity etl = new RequestBodyEntity(e.getPassword(), "TEL");

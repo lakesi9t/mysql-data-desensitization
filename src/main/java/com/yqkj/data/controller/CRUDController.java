@@ -37,6 +37,16 @@ public class CRUDController {
         return Result.success().add("user",users);
     }
 
+    /**
+     * 查询所有用户
+     * @return
+     */
+    @GetMapping("/getTableAllUser")
+    public Result getTableAllUser(){
+        List<User> users=crudService.getTableAllUser("user_copy1");
+        return Result.success().add("user",users);
+    }
+
     @GetMapping("/addUser")
     public Result addUser(){
         User user=new User();
@@ -70,7 +80,7 @@ public class CRUDController {
     @RequestMapping("/findPage")
     public List<User> findPage(int pageNo,Integer pageSize) {
 
-        return crudService.findPage(pageNo, pageSize);
+        return crudService.findPage(pageNo, pageSize, "user");
     }
 
 }
