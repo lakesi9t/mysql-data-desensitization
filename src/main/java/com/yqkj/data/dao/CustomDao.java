@@ -13,8 +13,8 @@ public interface CustomDao {
     List<Custom> getAllCustom();
     @Select("select * from ${tableName}")
     List<Custom> getTableAllCustom(@Param("tableName") String tableName);
-    @Select("select count(*) from custom")
-    Integer countAllCustom();
+    @Select("select count(*) from ${tableName}")
+    Integer countAllCustom(@Param("tableName") String tableName);
     @Select("select * from custom where id =#{id}")
     Custom getCustomById(@Param("id") Integer id);
     @Insert("insert into custom(id,username,tel,idcard) values(#{id},#{username},#{tel},#{idcard})")

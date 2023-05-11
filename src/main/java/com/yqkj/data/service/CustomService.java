@@ -4,6 +4,8 @@ import com.github.pagehelper.PageHelper;
 import com.yqkj.data.bean.Custom;
 import com.yqkj.data.bean.RequestBodyEntity;
 import com.yqkj.data.dao.CustomDao;
+import com.yqkj.data.utils.ReadWriteUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -12,9 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @Service
+@Slf4j
 public class CustomService implements CustomDao {
     @Value("${common.custom.pageSize}")
     private Integer pageSize;
@@ -36,8 +41,8 @@ public class CustomService implements CustomDao {
     }
 
     @Override
-    public Integer countAllCustom() {
-        return customDao.countAllCustom();
+    public Integer countAllCustom(String tableName) {
+        return customDao.countAllCustom(tableName);
     }
 
     @Override
@@ -75,14 +80,22 @@ public class CustomService implements CustomDao {
     }
 
     public void handle(String url, String tableName) {
-//        String url = "http://localhost:8080/user/test3";
-//        JSONObject postData = new JSONObject();
-//        Result allUser = crudControllergetAllUser();
 
-//        Integer count = countAllUser();
-        int countPage = countAllCustom() / pageSize + (countAllCustom() % pageSize == 0 ? 0 :1);
+        File file = new File("./logs");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        File file1 = new File(file, tableName +"_error_data.txt");
+        try {
+            if (!file1.exists()){
+                file1.createNewFile();
+            }
+        } catch (IOException e) {
+            log.info("error data文件创建失败");
+        }
 
-//        int countPage = countAllCustom() / StaticConfig.pageSize + 1;
+        int countPage = countAllCustom(tableName) / pageSize + (countAllCustom(tableName) % pageSize == 0 ? 0 :1);
+
 
         for (int i = 1; i <= countPage; i++) {
             List<Custom> page = findPage(i, pageSize, tableName);
@@ -100,14 +113,19 @@ public class CustomService implements CustomDao {
                             RequestBodyEntity body2 = cardResponseEntity.getBody();
                             String content = body.getContent();
                             String content2 = body2.getContent();
-                            e.setTel(content);
-                            e.setIdcard(content2);
-                            updateTableCustom(tableName, e.getId(), e.getUsername(), e.getTel(), e.getIdcard());
+//                            e.setTel(content);
+//                            e.setIdcard(content2);
+                            try {
+                                updateTableCustom(tableName, e.getId(), e.getUsername(), content, content2);
+                            } catch (Exception exception) {
+                                log.info("更新失败" + exception.getMessage());
+                                ReadWriteUtil.writeString(file1, e.toString()+"\n");
+                            }
                         } else {
 //                while () 失败之后重试两次，再失败，记录到文件里
-                            System.out.println("接口请求失败");
+                            log.info("此行接口数据调用失败, TEL:{}, TEL接口返回{}, IDCARD:{}, IDCARD接口返回:{}", e.getTel(), statusCode, e.getIdcard(), cardStatusCode);
+                            ReadWriteUtil.writeString(file1, e.toString()+"\n");
                         }
-
 
                     }
             );
