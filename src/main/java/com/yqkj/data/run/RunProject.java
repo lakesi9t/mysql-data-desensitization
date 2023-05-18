@@ -3,6 +3,7 @@ package com.yqkj.data.run;
 import com.yqkj.data.constant.TableType;
 import com.yqkj.data.service.CRUDService;
 import com.yqkj.data.service.CustomService;
+import com.yqkj.data.task.CustomTask;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class RunProject implements CommandLineRunner {
     @Autowired
     private CustomService customService;
 
+    @Autowired
+    private CustomTask customTask;
+
     @Override
     public void run(String... args) throws Exception {
         long t1 = System.currentTimeMillis();
@@ -39,7 +43,8 @@ public class RunProject implements CommandLineRunner {
 //        String url = "http://localhost:8080/user/test3";
         if (TableType.CUSTOM.equalsIgnoreCase(tableType))
         {
-            customService.handle(url, tableName);
+//            customService.handle(url, tableName);
+            customTask.handle_copy(tableName);
             log.info("{}表处理流程！", tableName);
         }
         if (TableType.USER.equalsIgnoreCase(tableType))
